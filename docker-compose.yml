@@ -1,0 +1,61 @@
+version: '2'
+services:
+  consul_s1:
+    container_name: consul_s1
+    build:
+      context: ./server
+    image: navsmb/consul-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    network_mode: host
+    env_file:
+      - .env
+    command: [
+      consul,
+      agent,
+      -dev,
+      -ui,
+      -server,
+      -bind,
+      $HOST_IP
+    ]
+
+  consul_s2:
+    container_name: consul_s2
+    build:
+      context: ./server
+    image: navsmb/consul-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    depends_on:
+      - consul_s1
+    command: [
+      consul,
+      agent,
+      -dev,
+      -server,
+      -join,
+      $HOST_IP
+    ]
+
+  consul_s3:
+    container_name: consul_s3
+    build:
+      context: ./server
+    image: navsmb/consul-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    depends_on:
+      - consul_s1
+    command: [
+      consul,
+      agent,
+      -dev,
+      -server,
+      -join,
+      $HOST_IP
+    ]
